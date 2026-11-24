@@ -1,19 +1,32 @@
 
 from performance import PerformanceRecord
+from database import update_record, get_all_records
+from database import delete_record
 
-# Create a sample performance record
-record = PerformanceRecord(
+# Create updated performance details
+updated_record = PerformanceRecord(
     branch_name="Eldoret",
-    report_date="2026-11-23",
+    report_date="2026-11-24",
     performance_type="Revenue",
     target=100000,
-    actual=85000,
-    notes="Monthly revenue performance"
+    actual=95000,
+    notes="Updated monthly revenue performance"
 )
 
-# Test the record
-print("Branch:", record.branch_name)
-print("Valid record:", record.is_valid())
-print("Variance:", record.variance())
-print("Achievement rate:", record.achievement_rate(), "%")
-print("Status:", record.status())
+# Update record with ID 1
+update_record(1, updated_record)
+
+# Display all records
+print("\nUpdated performance records:")
+
+for record in get_all_records():
+    print(record)
+
+
+# Delete record with ID 3
+delete_record(3)
+
+print("\nRecords after deletion:")
+
+for record in get_all_records():
+    print(record)    
