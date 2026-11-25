@@ -5,7 +5,13 @@ import pandas as pd
 from datetime import date
 
 from performance import PerformanceRecord
-from database import create_table, add_record, get_all_records
+from database import (
+    create_table,
+    add_record,
+    get_all_records,
+    update_record,
+    delete_record
+)
 
 
 # ==========================================
@@ -42,9 +48,9 @@ st.write(
 st.divider()
 
 
-# ==========================================
+# 
 # 4. ADD PERFORMANCE RECORD
-# ==========================================
+# 
 
 st.header("Add Performance Record")
 
@@ -246,8 +252,159 @@ if records:
 
         st.info("No matching performance records found.")
 
+    
     # ======================================
-    # 10. BRANCH PERFORMANCE CHART
+    # 10. EDIT PERFORMANCE RECORD
+    # ======================================
+
+    st.divider()
+
+    st.header("Edit Performance Record")
+
+    if not filtered_df.empty:
+
+        record_ids = filtered_df["ID"].tolist()
+
+        selected_record_id = st.selectbox(
+            "Select Record to Edit",
+            record_ids,
+            format_func=lambda record_id: (
+                f"ID {record_id} - "
+                f"{filtered_df[filtered_df['ID'] == record_id]['Branch'].iloc[0]}"
+            )
+        )
+
+        selected_record = filtered_df[
+            filtered_df["ID"] == selected_record_id
+        ].iloc[0]
+
+        with st.form("edit_record_form"):
+
+            edit_branch = st.text_input(
+                "Branch Name",
+                value=selected_record["Branch"]
+            )
+
+            edit_date = st.date_input(
+                "Report Date",
+                value=date.fromisoformat(
+                    str(selected_record["Report Date"])
+                )
+            )
+
+            edit_type = st.selectbox(
+                "Performance Type",
+                ["Revenue", "Disbursement", "Sales"],
+                index=["Revenue", "Disbursement", "Sales"].index(
+                    selected_record["Performance Type"]
+                )
+            )
+
+            edit_target = st.number_input(
+                "Target Amount",
+                min_value=0.0,
+                value=float(selected_record["Target"]),
+                step=1000.0
+            )
+
+            edit_actual = st.number_input(
+                "Actual Amount",
+                min_value=0.0,
+                value=float(selected_record["Actual"]),
+                step=1000.0
+            )
+
+            edit_notes = st.text_area(
+                "Notes",
+                value=str(selected_record["Notes"] or "")
+            )
+
+            update_submitted = st.form_submit_button(
+                "Update Record"
+            )
+
+            if update_submitted:
+
+                updated_record = PerformanceRecord(
+                    branch_name=edit_branch,
+                    report_date=str(edit_date),
+                    performance_type=edit_type,
+                    target=edit_target,
+                    actual=edit_actual,
+                    notes=edit_notes
+                )
+
+                if updated_record.is_valid():
+
+                    update_record(
+                        selected_record_id,
+                        updated_record
+                    )
+
+                    st.success("Record updated successfully!")
+
+                    st.rerun()
+
+                else:
+
+                    st.error(
+                        "Please enter a branch name and "
+                        "a target greater than zero."
+                    )
+
+    else:
+
+        st.info("No records available to edit.")
+
+
+   
+    # ======================================
+    # 11. DELETE PERFORMANCE RECORD
+    # ======================================
+
+    st.divider()
+
+    st.header("Delete Performance Record")
+
+    if not filtered_df.empty:
+
+        delete_record_id = st.selectbox(
+            "Select Record to Delete",
+            filtered_df["ID"].tolist(),
+            format_func=lambda record_id: (
+                f"ID {record_id} - "
+                f"{filtered_df[filtered_df['ID'] == record_id]['Branch'].iloc[0]}"
+            ),
+            key="delete_record_selector"
+        )
+
+        confirm_delete = st.checkbox(
+            "I understand that this record will be permanently deleted."
+        )
+
+        if st.button("Delete Selected Record", type="primary"):
+
+            if confirm_delete:
+
+                delete_record(delete_record_id)
+
+                st.success("Record deleted successfully!")
+
+                st.rerun()
+
+            else:
+
+                st.warning(
+                    "Please confirm that you want to delete this record."
+                )
+
+    else:
+
+        st.info("No records available to delete.")
+ 
+
+    # ======================================
+    # 12. BRANCH PERFORMANCE CHART
     # ======================================
 
     st.divider()
@@ -267,7 +424,7 @@ if records:
         st.info("No records available for the chart.")
 
     # ======================================
-    # 11. CSV REPORT EXPORT
+    # 13. CSV REPORT EXPORT
     # ======================================
 
     st.divider()
@@ -300,7 +457,7 @@ else:
 
 
 # ==========================================
-# 12. APPLICATION FOOTER
+# 14. APPLICATION FOOTER
 # ==========================================
 
 st.divider()
