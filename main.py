@@ -401,6 +401,57 @@ if records:
     else:
 
         st.info("No records available to delete.")
+
+  
+    # ======================================
+    # BRANCH PERFORMANCE RANKING
+    # ======================================
+
+    st.divider()
+
+    st.header("🏆 Branch Performance Ranking")
+
+    if not filtered_df.empty:
+
+        ranking = filtered_df.groupby("Branch").agg(
+            Total_Target=("Target", "sum"),
+            Total_Actual=("Actual", "sum")
+        ).reset_index()
+
+        ranking["Achievement (%)"] = (
+            ranking["Total_Actual"] /
+            ranking["Total_Target"] * 100
+        ).round(2)
+
+        ranking = ranking.sort_values(
+            by="Achievement (%)",
+            ascending=False
+        ).reset_index(drop=True)
+
+        ranking.insert(
+            0,
+            "Rank",
+            ranking.index + 1
+        )
+
+        ranking["Performance Status"] = ranking[
+            "Achievement (%)"
+        ].apply(
+            lambda percentage: "On Target"
+            if percentage >= 100
+            else "Below Target"
+        )
+
+        st.dataframe(
+            ranking,
+            use_container_width=True,
+            hide_index=True
+        )
+
+    else:
+
+        st.info("No records available for ranking.")
+      
  
 
     # ======================================
