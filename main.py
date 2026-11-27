@@ -14,9 +14,7 @@ from database import (
 )
 
 
-# ==========================================
-# 1. PAGE CONFIGURATION
-# ==========================================
+# Page Configuration
 
 st.set_page_config(
     page_title="BranchPulse Lite",
@@ -25,16 +23,12 @@ st.set_page_config(
 )
 
 
-# ==========================================
-# 2. DATABASE INITIALIZATION
-# ==========================================
+# Database Initialization
 
 create_table()
 
 
-# ==========================================
-# 3. APPLICATION HEADER
-# ==========================================
+# Application Header
 
 st.title("📊 BranchPulse Lite")
 
@@ -48,9 +42,7 @@ st.write(
 st.divider()
 
 
-# 
-# 4. ADD PERFORMANCE RECORD
-# 
+# Add Performance Record
 
 st.header("Add Performance Record")
 
@@ -111,9 +103,7 @@ with st.form("performance_form"):
 st.divider()
 
 
-# ==========================================
-# 5. FETCH PERFORMANCE RECORDS
-# ==========================================
+# Fetch Performance Records
 
 records = get_all_records()
 
@@ -132,9 +122,7 @@ if records:
         ]
     )
 
-    # ======================================
-    # 6. CALCULATE PERFORMANCE METRICS
-    # ======================================
+    # Calculate Performance Metrics
 
     df["Variance"] = df["Actual"] - df["Target"]
 
@@ -148,13 +136,12 @@ if records:
         else "Below Target"
     )
 
-    # ======================================
-    # 7. BRANCH FILTER AND SEARCH
-    # ======================================
+    # Branch Filter and Search
 
     st.header("Performance Records")
 
-    col1, col2 = st.columns(2)
+    
+    col1, col2, col3 = st.columns(3)
 
     with col1:
 
@@ -166,6 +153,13 @@ if records:
         )
 
     with col2:
+
+        selected_type = st.selectbox(
+            "Filter by Performance Type",
+            ["All Types", "Revenue", "Disbursement", "Sales"]
+        )
+
+    with col3:
 
         search_term = st.text_input(
             "Search Branch",
@@ -180,6 +174,12 @@ if records:
             filtered_df["Branch"] == selected_branch
         ]
 
+    if selected_type != "All Types":
+
+        filtered_df = filtered_df[
+            filtered_df["Performance Type"] == selected_type
+        ]
+
     if search_term:
 
         filtered_df = filtered_df[
@@ -190,9 +190,8 @@ if records:
             )
         ]
 
-    # ======================================
-    # 8. PERFORMANCE OVERVIEW
-    # ======================================
+
+    # Performance Overview
 
     st.divider()
 
@@ -232,9 +231,7 @@ if records:
         f"{achievement:.2f}%"
     )
 
-    # ======================================
-    # 9. PERFORMANCE RECORDS TABLE
-    # ======================================
+    # Performance Records Table
 
     st.divider()
 
@@ -253,9 +250,7 @@ if records:
         st.info("No matching performance records found.")
 
     
-    # ======================================
-    # 10. EDIT PERFORMANCE RECORD
-    # ======================================
+    # Edit Performance Record
 
     st.divider()
 
@@ -358,9 +353,7 @@ if records:
 
 
    
-    # ======================================
-    # 11. DELETE PERFORMANCE RECORD
-    # ======================================
+    # Delete Performance Record
 
     st.divider()
 
@@ -403,9 +396,7 @@ if records:
         st.info("No records available to delete.")
 
   
-    # ======================================
-    # BRANCH PERFORMANCE RANKING
-    # ======================================
+    # Branch Performance Ranking
 
     st.divider()
 
@@ -454,9 +445,7 @@ if records:
       
  
 
-    # ======================================
-    # 12. BRANCH PERFORMANCE CHART
-    # ======================================
+    # Branch Performance Chart
 
     st.divider()
 
@@ -474,9 +463,7 @@ if records:
 
         st.info("No records available for the chart.")
 
-    # ======================================
-    # 13. CSV REPORT EXPORT
-    # ======================================
+    # CSV Report Export
 
     st.divider()
 
@@ -507,9 +494,7 @@ else:
     )
 
 
-# ==========================================
-# 14. APPLICATION FOOTER
-# ==========================================
+# Application Footer
 
 st.divider()
 
