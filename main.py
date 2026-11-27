@@ -141,7 +141,7 @@ if records:
     st.header("Performance Records")
 
     
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
 
@@ -164,6 +164,16 @@ if records:
         search_term = st.text_input(
             "Search Branch",
             placeholder="Enter branch name..."
+        )
+
+    with col4:
+
+        date_range = st.date_input(
+            "Filter by Date Range",
+            value=(
+                df["Report Date"].min(),
+                df["Report Date"].max()
+            )
         )
 
     filtered_df = df.copy()
@@ -189,7 +199,15 @@ if records:
                 na=False
             )
         ]
+    if len(date_range) == 2:
 
+        start_date, end_date = date_range
+
+        filtered_df = filtered_df[
+            (pd.to_datetime(filtered_df["Report Date"]).dt.date >= start_date)
+            &
+            (pd.to_datetime(filtered_df["Report Date"]).dt.date <= end_date)
+        ]
 
     # Performance Overview
 
