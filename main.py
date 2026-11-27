@@ -257,11 +257,24 @@ if records:
 
     if not filtered_df.empty:
 
+       
+        styled_df = filtered_df.style.apply(
+            lambda row: [
+                "background-color: #fce4e4; color: #8b0000;"
+            ] * len(row)
+            if row["Status"] == "Below Target"
+            else [
+                "background-color: #e2f0d9; color: #245b18;"
+            ] * len(row),
+            axis=1
+        )
+
         st.dataframe(
-            filtered_df,
+            styled_df,
             use_container_width=True,
             hide_index=True
         )
+
 
     else:
 
